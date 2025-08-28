@@ -9,14 +9,14 @@ count=0
 for pokemon in Bulbasaur Ivysaur Venusaur Charmander Charmeleon; do
     if [[ -f "$pokemon.json" ]]; then
         name=$(jq -r '.name' "$pokemon.json")
-        height=$(jq -r '.height' "$pokemon.json")
-        weight=$(jq -r '.weight' "$pokemon.json")
-        height_m=$(awk "BEGIN { printf \"%.2f\", $height/10 }")
-        weight_kg=$(awk "BEGIN {printf \"%.2f\",$weight/10}")
+        name_cap=$(echo "$name" | sed 's/^\(.\)/\U\1/')
+        height_m=$(awk "BEGIN {printf \"%.2f\", $height/10}")
+        weight_kg=$(awk "BEGIN {printf \"%.2f\", $weight/10}")
+        echo "${name_cap},${height_m},${weight_kg}" >> "pokemon_report.csv"
         count=$((count + 1))
         average_height=$(awk "BEGIN {printf \"%.2f\", $average_height + $height_m}")
         average_weight=$(awk "BEGIN {printf \"%.2f\", $average_weight + $weight_kg}")
-        echo "${name^},${height_m},${weight_kg}" >> pokemon_report.csv
+        # echo "${name^},${height_m},${weight_kg}" >> pokemon_report.csv
     else
         echo "Warning: ${pokemon}.json not found. Skipping..."
     fi
