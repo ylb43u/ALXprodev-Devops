@@ -1,0 +1,10 @@
+#!/bin/bash
+URL="https://pokeapi.co/api/v2/pokemon/"
+
+response=$(curl -s -w "%{http_code}" -o data.json "$URL")
+chmod +x data.json
+http_code="${response:(-3)}"
+if [[ http_code !== 200 ]]; then
+    echo "fetching is failed $http_code" >> errors.txt
+    rm -f data.json  # Remove incomplete file if request failed 
+fi

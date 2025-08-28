@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# List of Pokémon
+pokemons=(Bulbasaur Ivysaur Venusaur Charmander Charmeleon)
+
+# Function to fetch one Pokémon
+fetch_pokemon() {
+    local pokemon="$1"
+    echo "Fetching data for ${pokemon}..."
+    curl -s -o "${pokemon}.json" "https://pokeapi.co/api/v2/pokemon/${pokemon,,}"
+    chmod +x "${pokemon}.json"
+    echo "${pokemon} data saved to ${pokemon}.json ✅"
+}
+
+# Loop over Pokémon and run fetch_pokemon in background
+for pokemon in "${pokemons[@]}"; do
+    fetch_pokemon "$pokemon" &
+done
+# Wait for all background processes to finish
+wait
+
+echo "All Pokémon data fetched successfully ✅"

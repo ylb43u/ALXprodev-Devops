@@ -1,0 +1,37 @@
+#!/bin/bash
+
+touch pokemon_report.csv
+chmod +x pokemon_report.csv
+echo "Name,Height (m),Weight (kg)" > pokemon_report.csv
+average_height=0
+average_weight=0
+count=0
+for pokemon in Bulbasaur Ivysaur Venusaur Charmander Charmeleon; do
+    if [[ -f "$pokemon.json" ]]; then
+        name=$(jq -r '.name' "$pokemon.json")
+        height=$(jq -r '.height' "$pokemon.json")
+        weight=$(jq -r '.weight' "$pokemon.json")
+        height_m=$(awk "BEGIN { printf \"%.2f\", $height/10 }")
+        weight_kg=$(awk "BEGIN {printf \"%.2f\",$weight/10}")
+        count=$((count + 1))
+        average_height=$(awk "BEGIN {printf \"%.2f\", $average_height + $height_m}")
+        average_weight=$(awk "BEGIN {printf \"%.2f\", $average_weight + $weight_kg}")
+        echo "${name^},${height_m},${weight_kg}" >> pokemon_report.csv
+    else
+        echo "Warning: ${pokemon}.json not found. Skipping..."
+    fi
+done
+
+if (( count > 0 )); then
+    average_height=$(awk "BEGIN {printf \"%.2f\", $average_height / $count}")
+    average_weight=$(awk "BEGIN {printf \"%.2f\", $average_weight / $count}")
+else
+    average_height=0
+    average_weight=0
+fi
+printf "\nAverage Weight: $average_weight kg" >> pokemon_report.csv
+printf "\nAverage Height: $average_height m" >> pokemon_report.csv
+
+printf   "CSV Report generated at: pokemon_report.csv\n"
+
+cat pokemon_report.csv

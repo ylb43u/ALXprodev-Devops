@@ -1,0 +1,26 @@
+#!/bin/bash
+for pokemon in Bulbasaur Ivysaur Venusaur Charmander Charmeleon; do
+    retry=3
+    while [ $retry -gt 0 ]; do
+        echo "Fetching data for ${pokemon}..."
+        response=$(curl -s -w "%{http_code}" -o "$pokemon.json" "https://pokeapi.co/api/v2/pokemon/${pokemon,,}")
+        http_code=${response: -3}
+
+        if [ "$http_code" -ne 200 ]; then
+            retry=$((retry - 1))
+            if [ $retry -eq 0 ]; then
+                echo "Error fetching data for $pokemon. HTTP status code: $http_code"
+                rm -f "$pokemon.json"
+                break
+            else
+                echo "Retrying $pokemon... ($retry attempts left)"
+                sleep 2
+            fi
+        else
+            echo "$pokemon data saved to $pokemon.json ✅"
+            chmod +x "$pokemon.json"
+            sleep 2
+            break
+        fi
+    done
+done
