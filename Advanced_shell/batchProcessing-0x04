@@ -1,27 +1,39 @@
 #!/bin/bash
 
-# List of Pokémon
+timeout=10
 pokemons=(Bulbasaur Ivysaur Venusaur Charmander Charmeleon)
+max_jobs=3
 
-# Function to fetch one Pokémon
 fetch_pokemon() {
     local pokemon="$1"
     echo "Fetching data for ${pokemon}..."
-    curl -s -o "${pokemon}.json" "https://pokeapi.co/api/v2/pokemon/${pokemon,,}"
-    chmod +x "${pokemon}.json"
+
+    curl -s -o "${pokemon}.json" "https://pokeapi.co/api/v2/pokemon/${pokemon,,}" &
+    pid=$!
+
+    # Timeout monitor
+    (
+        sleep $timeout
+        if kill -0 $pid 2>/dev/null; then
+            echo "Process $pid for $pokemon timed out. Killing..."
+            kill $pid
+        fi
+    ) &
+
+    wait $pid
     echo "${pokemon} data saved to ${pokemon}.json ✅"
 }
 
 # Loop over Pokémon and run fetch_pokemon in background
-max_jobs=3
 for pokemon in "${pokemons[@]}"; do
     fetch_pokemon "$pokemon" &
+
     # Limit concurrent jobs
     while [ "$(jobs -rp | wc -l)" -ge "$max_jobs" ]; do
         sleep 1
     done
 done
+
 wait
-
-
 echo "All Pokémon data fetched successfully ✅"
+chmod +x *.json
