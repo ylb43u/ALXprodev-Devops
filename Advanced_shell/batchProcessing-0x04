@@ -13,10 +13,15 @@ fetch_pokemon() {
 }
 
 # Loop over Pokémon and run fetch_pokemon in background
+max_jobs=3
 for pokemon in "${pokemons[@]}"; do
     fetch_pokemon "$pokemon" &
+    # Limit concurrent jobs
+    while [ "$(jobs -rp | wc -l)" -ge "$max_jobs" ]; do
+        sleep 1
+    done
 done
-# Wait for all background processes to finish
 wait
+
 
 echo "All Pokémon data fetched successfully ✅"
