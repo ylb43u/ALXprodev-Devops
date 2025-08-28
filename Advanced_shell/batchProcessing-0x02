@@ -1,5 +1,5 @@
 #!/bin/bash
-for pokemon in Bulbasaur Ivysaur Venusaur Charmander Charmeleon; do
+for pokemon in bulbasaur ivysaur venusaur charmander charmeleon; do
     retry=3
     while [ $retry -gt 0 ]; do
         echo "Fetching data for ${pokemon}..."
